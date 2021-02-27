@@ -55,7 +55,7 @@ static const char *loongarch_reg_names_fpr[] = {
 #define RI21    LA_INSN_FORMAT_RI21
 #define I25     LA_INSN_FORMAT_I25
 #define HEX     RENDER_FLAG_PRINT_IMM_HEX
-#define SIMM    RENDER_FLAG_PRINT_IMM_SIGN
+#define JO      RENDER_FLAG_IMM_JUMP_OFFSET
 #define M32     RENDER_FLAG_IMM_MINUS_32
 #define SHL2    RENDER_FLAG_IMM_SHL_2
 #define FD      RENDER_FLAG_RD_IS_FPR
@@ -126,18 +126,18 @@ static const struct la_disasm_matcher loongarch_disasm_data[] = {
     { "lh.2",       RRI12,  0x2a400000, 0xffc00000, LS },
     { "fld",        RRI12,  0x2b800000, 0xffc00000, FD|LS },
     { "fsd",        RRI12,  0x2bc00000, 0xffc00000, FD|LS },
-    { "beqz",       RI21,   0x40000000, 0xfc000000, SIMM },
-    { "bnez",       RI21,   0x44000000, 0xfc000000, SIMM },
-    { "!bfp",       RI21,   0x48000000, 0xfc000000, SIMM },
+    { "beqz",       RI21,   0x40000000, 0xfc000000, JO },
+    { "bnez",       RI21,   0x44000000, 0xfc000000, JO },
+    { "!bfp",       RI21,   0x48000000, 0xfc000000, JO },
     { "jalr",       RR,     0x4c000000, 0xfffffc00, 0 },
-    { "j",          I25,    0x50000000, 0xfc000000, SIMM },
-    { "jal",        I25,    0x54000000, 0xfc000000, SIMM },
-    { "beq",        RRI16,  0x58000000, 0xfc000000, SIMM },
-    { "bne",        RRI16,  0x5c000000, 0xfc000000, SIMM },
-    { "bgt",        RRI16,  0x60000000, 0xfc000000, SIMM },
-    { "ble.2",      RRI16,  0x64000000, 0xfc000000, SIMM },
-    { "bgt.2",      RRI16,  0x68000000, 0xfc000000, SIMM },
-    { "ble",        RRI16,  0x6c000000, 0xfc000000, SIMM },
+    { "j",          I25,    0x50000000, 0xfc000000, JO },
+    { "jal",        I25,    0x54000000, 0xfc000000, JO },
+    { "beq",        RRI16,  0x58000000, 0xfc000000, JO },
+    { "bne",        RRI16,  0x5c000000, 0xfc000000, JO },
+    { "bgt",        RRI16,  0x60000000, 0xfc000000, JO },
+    { "ble.2",      RRI16,  0x64000000, 0xfc000000, JO },
+    { "bgt.2",      RRI16,  0x68000000, 0xfc000000, JO },
+    { "ble",        RRI16,  0x6c000000, 0xfc000000, JO },
 
     /* sentinel & ultimate fallback */
     { NULL,         UNK,    0x00000000, 0x00000000 }
@@ -156,7 +156,7 @@ static const struct la_disasm_matcher loongarch_disasm_data[] = {
 #undef RI21
 #undef I25
 #undef HEX
-#undef SIMM
+#undef JO
 #undef M32
 #undef SHL2
 #undef FD
@@ -359,14 +359,15 @@ static int match_insn(la_insn_t insn_word, struct la_op *out) {
     return 0;
 }
 
-static int print_insn(char *buf, int buflen, struct la_op *op) {
+static int print_insn(char *buf, int buflen, struct la_op *op, uint64_t pc) {
     bool print_hex = (op->render_flags & RENDER_FLAG_PRINT_IMM_HEX) != 0;
-    bool print_sign = (op->render_flags & RENDER_FLAG_PRINT_IMM_SIGN) != 0;
+    bool imm_is_jump_offset = (op->render_flags & RENDER_FLAG_IMM_JUMP_OFFSET) != 0;
     bool is_load_store = (op->render_flags & RENDER_FLAG_LOAD_STORE) != 0;
 
     uint32_t imm;
     uint32_t imm1, imm2;
     int32_t simm;
+    uint64_t jump_target;
     switch (op->fmt) {
     case LA_INSN_FORMAT_UNKNOWN:
         return snprintf(buf, buflen, "??? %08x", op->insn.unknown);
@@ -499,17 +500,27 @@ static int print_insn(char *buf, int buflen, struct la_op *op) {
         );
     case LA_INSN_FORMAT_RRI16:
         imm = op->insn.rri16.imm;
-        if (print_sign) {
+        if (imm_is_jump_offset) {
             simm = simm_from_uimm(imm, 16);
+            jump_target = pc + simm * INSN_LENGTH_BYTES;
+            return snprintf(
+                buf,
+                buflen,
+                "%s %s, %s, 0x%lx",
+                op->mnemonic,
+                PRINT_RD(op->insn.rri16.rd),
+                PRINT_RJ(op->insn.rri16.rj),
+                jump_target
+            );
         }
         return snprintf(
             buf,
             buflen,
-            print_hex ? "%s %s, %s, 0x%x" : print_sign ? "%s %s, %s, %+d" : "%s %s, %s, %d",
+            print_hex ? "%s %s, %s, 0x%x" : "%s %s, %s, %d",
             op->mnemonic,
             PRINT_RD(op->insn.rri16.rd),
             PRINT_RJ(op->insn.rri16.rj),
-            print_sign ? simm : print_hex ? imm : simm
+            imm
         );
     case LA_INSN_FORMAT_AUI20:
         return snprintf(
@@ -522,28 +533,45 @@ static int print_insn(char *buf, int buflen, struct la_op *op) {
         );
     case LA_INSN_FORMAT_RI21:
         imm = op->insn.ri21.imm;
-        if (print_sign) {
+        if (imm_is_jump_offset) {
             simm = simm_from_uimm(imm, 21);
+            jump_target = pc + simm * INSN_LENGTH_BYTES;
+            return snprintf(
+                buf,
+                buflen,
+                "%s %s, 0x%lx",
+                op->mnemonic,
+                PRINT_RJ(op->insn.ri21.rj),
+                jump_target
+            );
         }
         return snprintf(
             buf,
             buflen,
-            print_sign ? "%s %s, %+d" : "%s %s, %d",
+            "%s %s, %d",
             op->mnemonic,
             PRINT_RJ(op->insn.ri21.rj),
-            print_sign ? simm : imm
+            imm
         );
     case LA_INSN_FORMAT_I25:
         imm = op->insn.i25.imm;
-        if (print_sign) {
+        if (imm_is_jump_offset) {
             simm = simm_from_uimm(imm, 25);
+            jump_target = pc + simm * INSN_LENGTH_BYTES;
+            return snprintf(
+                buf,
+                buflen,
+                "%s 0x%lx",
+                op->mnemonic,
+                jump_target
+            );
         }
         return snprintf(
             buf,
             buflen,
-            print_sign ? "%s %+d" : "%s %d",
+            "%s %d",
             op->mnemonic,
-            print_sign ? simm : imm
+            imm
         );
 #undef GPR
 #undef FPR
@@ -575,7 +603,7 @@ static int disassemble(RAsm *a, RAsmOp *op, const ut8 *buf, int len) {
 
     int ret = match_insn(insn_word, &matched_op);
     if (ret > 0) {
-        print_insn(insn_buf, sizeof(insn_buf), &matched_op);
+        print_insn(insn_buf, sizeof(insn_buf), &matched_op, a->pc);
         r_strbuf_set(&op->buf_asm, insn_buf);
     }
     return op->size = ret;

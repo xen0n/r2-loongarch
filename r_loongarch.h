@@ -3,6 +3,8 @@
 
 #include <inttypes.h>
 
+#define INSN_LENGTH_BYTES 4
+
 typedef uint32_t la_insn_t;
 typedef uint32_t la_opcode_t;
 typedef uint32_t la_sel_t;
@@ -27,7 +29,7 @@ enum la_insn_format_t {
 
 typedef uint32_t la_render_flag_t;
 #define RENDER_FLAG_PRINT_IMM_HEX   0x1
-#define RENDER_FLAG_PRINT_IMM_SIGN  0x2
+#define RENDER_FLAG_IMM_JUMP_OFFSET 0x2
 #define RENDER_FLAG_IMM_MINUS_32    0x4
 #define RENDER_FLAG_IMM_SHL_2       0x8
 #define RENDER_FLAG_RD_IS_FPR       0x10
