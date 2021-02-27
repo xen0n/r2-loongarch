@@ -2,7 +2,7 @@ NAME=asm_loongarch
 R2_PLUGIN_PATH=$(shell r2 -H R2_USER_PLUGINS)
 LIBEXT=$(shell r2 -H LIBEXT)
 CFLAGS=-O2 -g -fPIC $(shell pkg-config --cflags r_anal)
-LDFLAGS=-shared $(shell pkg-config --libs r_anal)
+LDFLAGS=-Wl,-O1 -Wl,--as-needed -shared $(shell pkg-config --libs r_anal)
 OBJS=$(NAME).o
 LIB=$(NAME).$(LIBEXT)
 
