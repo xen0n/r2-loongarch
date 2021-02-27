@@ -83,6 +83,7 @@ static const struct la_disasm_matcher loongarch_disasm_data[] = {
     { "sbs",        RRR,    0x00180000, 0xffff8000, 0 },
     { "srl",        RRR,    0x00190000, 0xffff8000, 0 },
     { "mul",        RRR,    0x001d8000, 0xffff8000, 0 },
+    { "syscall",    RRR,    0x002b0000, 0xffffffff, 0 },
     { "ofs.w",      RRR,    0x002c8000, 0xffff8000, 0 },
     { "slliw",      RRI6,   0x00408000, 0xffff8000, M32 },
     { "slli",       RRI6,   0x00410000, 0xffff0000, 0 },
