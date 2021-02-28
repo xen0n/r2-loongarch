@@ -355,8 +355,12 @@ static int match_insn(la_insn_t insn_word, struct la_op *out) {
         return 4;
     }
 
-    /* all matches missed, should never happen either but leave this around anyway */
-    return 0;
+    /* all matches missed */
+    out->mnemonic = "unk";
+    out->fmt = LA_INSN_FORMAT_UNKNOWN;
+    out->render_flags = 0;
+    out->insn.unknown = insn_word;
+    return 4;
 }
 
 static int print_insn(char *buf, int buflen, struct la_op *op, uint64_t pc) {
@@ -370,7 +374,13 @@ static int print_insn(char *buf, int buflen, struct la_op *op, uint64_t pc) {
     uint64_t jump_target;
     switch (op->fmt) {
     case LA_INSN_FORMAT_UNKNOWN:
-        return snprintf(buf, buflen, "??? %08x", op->insn.unknown);
+        return snprintf(
+            buf,
+            buflen,
+            "%s 0x%08x",
+            op->mnemonic,
+            op->insn.unknown
+        );
 
 #define GPR(x)          loongarch_reg_names_gpr[x]
 #define FPR(x)          loongarch_reg_names_fpr[x]
