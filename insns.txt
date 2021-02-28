@@ -26,9 +26,13 @@
 000000 00010 01101 IMM___ RJ___ RD___  rori
 000000 00011 IMMB_ 1 IMMA_ RJ___ RD___ ext.w
 000000 0011 IMMB__ IMMA__ RJ___ RD___  mask
+000000 01000 000001 FK___ FJ___ FD___  fadd.w
 000000 01000 000010 FK___ FJ___ FD___  fadd.d
+000000 01000 000101 FK___ FJ___ FD___  fsub.w
 000000 01000 000110 FK___ FJ___ FD___  fsub.d
+000000 01000 001001 FK___ FJ___ FD___  fmul.w
 000000 01000 001010 FK___ FJ___ FD___  fmul.d
+000000 01000 001101 FK___ FJ___ FD___  fdiv.w
 000000 01000 001110 FK___ FJ___ FD___  fdiv.d
 000000 1000 IMM_________ RJ___ RD___   slti
 000000 1001 IMM_________ RJ___ RD___   sltiu
@@ -55,6 +59,8 @@
 001010 0111 IMM_________ RJ___ RD___   sd
 001010 1000 IMM_________ RJ___ RD___   lb.2        **5 -- may be unsigned variants of respective instructions
 001010 1001 IMM_________ RJ___ RD___   lh.2        **5
+001010 1100 IMM_________ RJ___ FD___   flw
+001010 1101 IMM_________ RJ___ FD___   fsw
 001010 1110 IMM_________ RJ___ FD___   fld
 001010 1111 IMM_________ RJ___ FD___   fsd
 010000 IMMLO___________ RJ___ IMMHI    beqz
