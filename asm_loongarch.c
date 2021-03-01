@@ -141,9 +141,9 @@ static const struct la_disasm_matcher loongarch_disasm_data[] = {
     { "beq",        RRI16,  0x58000000, 0xfc000000, JO },
     { "bne",        RRI16,  0x5c000000, 0xfc000000, JO },
     { "bgt",        RRI16,  0x60000000, 0xfc000000, JO },
-    { "ble.2",      RRI16,  0x64000000, 0xfc000000, JO },
+    { "ble",        RRI16,  0x64000000, 0xfc000000, JO },
     { "bgt.2",      RRI16,  0x68000000, 0xfc000000, JO },
-    { "ble",        RRI16,  0x6c000000, 0xfc000000, JO },
+    { "bleu",       RRI16,  0x6c000000, 0xfc000000, JO },
 
     /* sentinel & ultimate fallback */
     { NULL,         UNK,    0x00000000, 0x00000000 }
