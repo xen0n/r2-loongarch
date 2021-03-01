@@ -71,7 +71,7 @@
 010101 IMMLO___________ ? IMMHI____    jal         **9
 010110 IMM_____________ RJ___ RD___    beq
 010111 IMM_____________ RJ___ RD___    bne
-011000 IMM_____________ RJ___ RD___    bgt         **7 -- one is unsigned in each pair, but not clear which
+011000 IMM_____________ RJ___ RD___    bgt
 011001 IMM_____________ RJ___ RD___    ble
-011010 IMM_____________ RJ___ RD___    bgt.2       **7
+011010 IMM_____________ RJ___ RD___    bgtu
 011011 IMM_____________ RJ___ RD___    bleu
