@@ -45,7 +45,7 @@
 000101 0 IMM_________________ RD___    aui
 000101 1 IMM_________________ RD___    ahi
 000111 0 IMM_________________ RD___    auipc
-001001 00 IMM___________ RJ___ RD___   lw.2        **5
+001001 00 IMM___________ RJ___ RD___   lw.2        **5 -- may be unsigned variants of respective instructions
 001001 01 IMM___________ RJ___ RD___   sw.2        **6 -- difference is not known
 001001 10 IMM___________ RJ___ RD___   ld.2        **6
 001001 11 IMM___________ RJ___ RD___   sd.2        **6
@@ -57,8 +57,8 @@
 001010 0101 IMM_________ RJ___ RD___   sh
 001010 0110 IMM_________ RJ___ RD___   sw
 001010 0111 IMM_________ RJ___ RD___   sd
-001010 1000 IMM_________ RJ___ RD___   lb.2        **5 -- may be unsigned variants of respective instructions
-001010 1001 IMM_________ RJ___ RD___   lh.2        **5
+001010 1000 IMM_________ RJ___ RD___   lbu
+001010 1001 IMM_________ RJ___ RD___   lhu
 001010 1100 IMM_________ RJ___ FD___   flw
 001010 1101 IMM_________ RJ___ FD___   fsw
 001010 1110 IMM_________ RJ___ FD___   fld
