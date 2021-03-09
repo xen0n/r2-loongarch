@@ -4,8 +4,8 @@
 000000 0000 0100001 RK___ RJ___ RD___   add
 000000 0000 0100010 RK___ RJ___ RD___   subw
 000000 0000 0100011 RK___ RJ___ RD___   sub
-000000 0000 0100110 RK___ RJ___ RD___   !selnez     **1 -- may be swapped
-000000 0000 0100111 RK___ RJ___ RD___   !seleqz     **1
+000000 0000 0100110 RK___ RJ___ RD___   selnez
+000000 0000 0100111 RK___ RJ___ RD___   seleqz
 000000 0000 0101000 RK___ RJ___ RD___   !nor        **2 -- may also be xnor
 000000 0000 0101001 RK___ RJ___ RD___   and
 000000 0000 0101010 RK___ RJ___ RD___   or          **3 -- mv is sugar for `or rd, zero, rk`
